@@ -431,8 +431,12 @@ if(APPLE)
     list(APPEND DARWIN_osx_LINK_FLAGS -isysroot ${DARWIN_osx_SYSROOT})
   endif()
 
-  # Figure out which arches to use for each OS
-  darwin_get_toolchain_supported_archs(toolchain_arches)
+  if(COMPILER_RT_TOOLCHAIN_ARCHES)
+    set(toolchain_arches ${COMPILER_RT_TOOLCHAIN_ARCHES})
+  else()
+    # Figure out which arches to use for each OS
+    darwin_get_toolchain_supported_archs(toolchain_arches)
+  endif()
   message(STATUS "Toolchain supported arches: ${toolchain_arches}")
 
   if(NOT MACOSX_VERSION_MIN_FLAG)
