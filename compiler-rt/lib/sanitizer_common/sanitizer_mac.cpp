@@ -110,6 +110,11 @@ extern "C" int __munmap(void *, size_t) SANITIZER_WEAK_ATTRIBUTE;
 #define VM_MEMORY_SANITIZER 99
 #endif
 
+// From <sys/spawn.h> but not in some SDKs
+#ifndef POSIX_SPAWN_CLOEXEC_DEFAULT
+#define	POSIX_SPAWN_CLOEXEC_DEFAULT	0x4000
+#endif
+
 // XNU on Darwin provides a mmap flag that optimizes allocation/deallocation of
 // giant memory regions (i.e. shadow memory regions).
 #define kXnuFastMmapFd 0x4

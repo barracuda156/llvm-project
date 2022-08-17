@@ -19,6 +19,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+// add definition missing on older systems
+#ifndef POSIX_SPAWN_SETSIGMASK
+#define POSIX_SPAWN_SETSIGMASK          0x0008
+#endif
+#ifndef POSIX_SPAWN_SETSIGDEF
+#define POSIX_SPAWN_SETSIGDEF           0x0004
+#endif
+
 // There is no header for this on macOS so declare here
 extern "C" char **environ;
 
