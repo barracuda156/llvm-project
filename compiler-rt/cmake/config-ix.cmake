@@ -403,11 +403,16 @@ if(APPLE)
   # We're setting the flag manually for each target OS
   set(CMAKE_OSX_DEPLOYMENT_TARGET "")
 
-  set(DARWIN_COMMON_CFLAGS -stdlib=libc++)
-  set(DARWIN_COMMON_LINK_FLAGS
-    -stdlib=libc++
-    -lc++
-    -lc++abi)
+  if (NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    set(DARWIN_COMMON_CFLAGS -stdlib=libc++)
+    set(DARWIN_COMMON_LINK_FLAGS
+      -stdlib=libc++
+      -lc++
+      -lc++abi)
+  else()
+    set(DARWIN_COMMON_CFLAGS "")
+    set(DARWIN_COMMON_LINK_FLAGS "")
+  endif()
 
   check_linker_flag("-fapplication-extension" COMPILER_RT_HAS_APP_EXTENSION)
   if(COMPILER_RT_HAS_APP_EXTENSION)
