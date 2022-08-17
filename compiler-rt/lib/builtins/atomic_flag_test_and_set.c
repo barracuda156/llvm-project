@@ -19,7 +19,11 @@
 #include <stdatomic.h>
 #undef atomic_flag_test_and_set
 _Bool atomic_flag_test_and_set(volatile atomic_flag *object) {
+#if defined(__GNUC__) && !defined(__clang__)
+  return __atomic_exchange_n(&(object)->__val, 1, __ATOMIC_SEQ_CST);
+#else
   return __c11_atomic_exchange(&(object)->_Value, 1, __ATOMIC_SEQ_CST);
+#endif
 }
 
 #endif

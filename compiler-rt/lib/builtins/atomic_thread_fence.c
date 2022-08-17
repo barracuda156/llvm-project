@@ -19,7 +19,11 @@
 #include <stdatomic.h>
 #undef atomic_thread_fence
 void atomic_thread_fence(memory_order order) {
+#if defined(__GNUC__) && !defined(__clang__)
+  __atomic_thread_fence(order);
+#else
   __c11_atomic_thread_fence(order);
+#endif
 }
 
 #endif

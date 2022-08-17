@@ -19,7 +19,11 @@
 #include <stdatomic.h>
 #undef atomic_signal_fence
 void atomic_signal_fence(memory_order order) {
+#if defined(__GNUC__) && !defined(__clang__)
+  __atomic_signal_fence(order);
+#else
   __c11_atomic_signal_fence(order);
+#endif
 }
 
 #endif

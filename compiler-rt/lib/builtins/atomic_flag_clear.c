@@ -19,7 +19,11 @@
 #include <stdatomic.h>
 #undef atomic_flag_clear
 void atomic_flag_clear(volatile atomic_flag *object) {
+#if defined(__GNUC__) && !defined(__clang__)
+  __atomic_exchange_n(&(object)->__val, 0, __ATOMIC_SEQ_CST);
+#else
   __c11_atomic_store(&(object)->_Value, 0, __ATOMIC_SEQ_CST);
+#endif
 }
 
 #endif

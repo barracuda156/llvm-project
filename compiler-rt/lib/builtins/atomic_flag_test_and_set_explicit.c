@@ -20,7 +20,11 @@
 #undef atomic_flag_test_and_set_explicit
 _Bool atomic_flag_test_and_set_explicit(volatile atomic_flag *object,
                                         memory_order order) {
+#if defined(__GNUC__) && !defined(__clang__)
+  return __atomic_exchange_n(&(object)->__val, 1, order);
+#else
   return __c11_atomic_exchange(&(object)->_Value, 1, order);
+#endif
 }
 
 #endif

@@ -20,7 +20,11 @@
 #undef atomic_flag_clear_explicit
 void atomic_flag_clear_explicit(volatile atomic_flag *object,
                                 memory_order order) {
+#if defined(__GNUC__) && !defined(__clang__)
+  __atomic_exchange_n(&(object)->__val, 0, order);
+#else
   __c11_atomic_store(&(object)->_Value, 0, order);
+#endif
 }
 
 #endif
