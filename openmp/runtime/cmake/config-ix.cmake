@@ -245,7 +245,7 @@ endif()
 libomp_check_version_symbols(LIBOMP_HAVE_VERSION_SYMBOLS)
 
 # Check if quad precision types are available
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT ${PPC})
   set(LIBOMP_HAVE_QUAD_PRECISION TRUE)
 elseif(CMAKE_C_COMPILER_ID STREQUAL "Intel")
   if(LIBOMP_HAVE_EXTENDED_FLOAT_TYPES_FLAG)

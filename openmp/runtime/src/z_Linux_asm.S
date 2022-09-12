@@ -28,7 +28,7 @@
 // A value of 0 works fine for <= 2 threads per core, but causes the EPCC
 // barrier time to increase greatly for 3 or more threads per core.
 //
-// A value of 100 works pretty well for up to 4 threads per core, but isn't
+// A value of 100 works pretty well for up to 4 threads per core, but isn’t
 // quite as fast as 0 for 2 threads per core.
 //
 // We need to check what happens for oversubscription / > 4 threads per core.
@@ -67,11 +67,10 @@
 	.globl KMP_PREFIX_UNDERSCORE($0)
 KMP_PREFIX_UNDERSCORE($0):
 .endmacro
-# else // KMP_OS_DARWIN
-#  define KMP_PREFIX_UNDERSCORE(x) x //no extra underscore for Linux* OS symbols
-// Format labels so that they don't override function names in gdb's backtraces
-// MIC assembler doesn't accept .L syntax, the L works fine there (as well as
-// on OS X*)
+# else // !KMP_OS_DARWIN
+#  define KMP_PREFIX_UNDERSCORE(x) x // no extra underscore for Linux* OS symbols
+// Format labels so that they don’t override function names in gdb’s backtraces.
+// MIC assembler doesn’t accept .L syntax, the L works fine there (as well as on OS X*).
 # if KMP_MIC
 #  define KMP_LABEL(x) L_##x          // local label
 # else
@@ -119,8 +118,7 @@ KMP_PREFIX_UNDERSCORE(\proc):
 .endmacro
 
 .macro DEBUG_INFO
-/* Not sure what .size does in icc, not sure if we need to do something
-   similar for OS X*.
+/* Not sure what .size does in icc, not sure if we need to do something similar for OS X*.
 */
 .endmacro
 
@@ -129,9 +127,9 @@ KMP_PREFIX_UNDERSCORE(\proc):
 	.globl KMP_PREFIX_UNDERSCORE($0)
 KMP_PREFIX_UNDERSCORE($0):
 .endmacro
-# else // KMP_OS_DARWIN
+# else // !KMP_OS_DARWIN
 #  define KMP_PREFIX_UNDERSCORE(x) x  // no extra underscore for Linux* OS symbols
-// Format labels so that they don't override function names in gdb's backtraces
+// Format labels so that they don’t override function names in gdb’s backtraces.
 #  define KMP_LABEL(x) .L_##x         // local label hidden from backtraces
 
 .macro ALIGN size
@@ -164,8 +162,8 @@ KMP_PREFIX_UNDERSCORE(\proc):
 
 // Support for unnamed common blocks.
 //
-// Because the symbol ".gomp_critical_user_" contains a ".", we have to
-// put this stuff in assembly.
+// Because the symbol ".gomp_critical_user_" contains a ".",
+// we have to put this stuff in assembly.
 
 # if KMP_ARCH_X86
 #  if KMP_OS_DARWIN
@@ -208,6 +206,24 @@ __kmp_unnamed_critical_addr:
         .size __kmp_unnamed_critical_addr,8
 #  endif /* KMP_OS_DARWIN */
 # endif /* KMP_ARCH_X86_64 */
+
+# if KMP_OS_DARWIN && (KMP_ARCH_PPC || KMP_ARCH_PPC64)
+#  if KMP_ARCH_PPC
+        .data
+        .comm .gomp_critical_user_,32
+        .data
+        .globl ___kmp_unnamed_critical_addr
+___kmp_unnamed_critical_addr:
+        .long .gomp_critical_user_
+#  else // Darwin ppc64
+        .data
+        .comm .gomp_critical_user_,32
+        .data
+        .globl ___kmp_unnamed_critical_addr
+___kmp_unnamed_critical_addr:
+        .quad .gomp_critical_user_
+#  endif /* KMP_ARCH_* */
+# endif /* KMP_OS_DARWIN && (KMP_ARCH_PPC || KMP_ARCH_PPC64) */
 
 #endif /* KMP_GOMP_COMPAT */
 
@@ -401,8 +417,7 @@ __kmp_unnamed_critical_addr:
         DEBUG_INFO __kmp_compare_and_store_ret8
 
 // kmp_int16
-// __kmp_compare_and_store_ret16(volatile kmp_int16 *p, kmp_int16 cv,
-//                               kmp_int16 sv);
+// __kmp_compare_and_store_ret16(volatile kmp_int16 *p, kmp_int16 cv, kmp_int16 sv);
         PROC  __kmp_compare_and_store_ret16
 
         movl      4(%esp), %ecx
@@ -415,8 +430,7 @@ __kmp_unnamed_critical_addr:
         DEBUG_INFO __kmp_compare_and_store_ret16
 
 // kmp_int32
-// __kmp_compare_and_store_ret32(volatile kmp_int32 *p, kmp_int32 cv,
-//                               kmp_int32 sv);
+// __kmp_compare_and_store_ret32(volatile kmp_int32 *p, kmp_int32 cv, kmp_int32 sv);
         PROC  __kmp_compare_and_store_ret32
 
         movl      4(%esp), %ecx
@@ -429,8 +443,7 @@ __kmp_unnamed_critical_addr:
         DEBUG_INFO __kmp_compare_and_store_ret32
 
 // kmp_int64
-// __kmp_compare_and_store_ret64(volatile kmp_int64 *p, kmp_int64 cv,
-//                               kmp_int64 sv);
+// __kmp_compare_and_store_ret64(volatile kmp_int64 *p, kmp_int64 cv, kmp_int64 sv);
         PROC  __kmp_compare_and_store_ret64
 
         pushl     %ebp
@@ -1106,7 +1119,7 @@ KMP_LABEL(kmp_invoke_push_parms):
 
 // C69570: "X86_64_RELOC_BRANCH not supported" error at linking on mac_32e
 //		if the name of the label that is an operand of this jecxz starts with a dot (".");
-//	   Apple's linker does not support 1-byte length relocation;
+//	   Apple’s linker does not support 1-byte length relocation;
 //         Resolution: replace all .labelX entries with L_labelX.
 
 	jecxz   KMP_LABEL(kmp_invoke_pass_parms)  // stop when four p_argv[] parms left
@@ -1203,7 +1216,7 @@ KMP_LABEL(kmp_1_exit):
 // -----------------------------------------------------------------------
 #endif /* KMP_ARCH_X86_64 */
 
-// '
+
 #if (KMP_OS_LINUX || KMP_OS_DARWIN) && KMP_ARCH_AARCH64
 
 //------------------------------------------------------------------------
@@ -1330,7 +1343,16 @@ KMP_LABEL(kmp_1):
 
 #endif /* (KMP_OS_LINUX || KMP_OS_DARWIN) && KMP_ARCH_AARCH64 */
 
-#if KMP_ARCH_PPC64
+#if (KMP_ARCH_PPC || KMP_ARCH_PPC64) && !KMP_OS_DARWIN
+// FixMe: Darwin is not yet implemented below
+
+# if KMP_OS_DARWIN
+#  define KMP_PREFIX_UNDERSCORE(x) _##x  // extra underscore for OS X* symbols
+#  define KMP_LABEL(x) L_##x             // form the name of label
+# else // !KMP_OS_DARWIN
+#  define KMP_PREFIX_UNDERSCORE(x) x  // no extra underscore for Linux* OS symbols
+#  define KMP_LABEL(x) .L_##x         // local label hidden from backtraces
+# endif
 
 //------------------------------------------------------------------------
 // int
@@ -1370,7 +1392,7 @@ KMP_LABEL(kmp_1):
 # if KMP_ARCH_PPC64_ELFv2
 	.abiversion 2
 # endif
-	.globl	__kmp_invoke_microtask
+	.globl	KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask)
 
 # if KMP_ARCH_PPC64_ELFv2
 	.p2align	4
@@ -1378,43 +1400,55 @@ KMP_LABEL(kmp_1):
 	.p2align	2
 # endif
 
-	.type	__kmp_invoke_microtask,@function
+# if KMP_ARCH_PPC64_ELFv1 || KMP_ARCH_PPC64_ELFv2
+	.type	KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask),@function
+# endif
 
 # if KMP_ARCH_PPC64_ELFv2
-__kmp_invoke_microtask:
-.Lfunc_begin0:
-.Lfunc_gep0:
-	addis 2, 12, .TOC.-.Lfunc_gep0@ha
-	addi 2, 2, .TOC.-.Lfunc_gep0@l
-.Lfunc_lep0:
-	.localentry	__kmp_invoke_microtask, .Lfunc_lep0-.Lfunc_gep0
-# else
+KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask):
+KMP_LABEL(func_begin0):
+KMP_LABEL(func_gep0):
+	addis 2, 12, .TOC.-KMP_LABEL(func_gep0)@ha
+	addi 2, 2, .TOC.-KMP_LABEL(func_gep0)@l
+KMP_LABEL(func_lep0):
+	.localentry	KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask), KMP_LABEL(func_lep0)-KMP_LABEL(func_gep0)
+# elseif KMP_ARCH_PPC64_ELFv1
 	.section	.opd,"aw",@progbits
-__kmp_invoke_microtask:
+KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask):
 	.p2align	3
-	.quad	.Lfunc_begin0
+	.quad	KMP_LABEL(func_begin0)
 	.quad	.TOC.@tocbase
 	.quad	0
 	.text
-.Lfunc_begin0:
+KMP_LABEL(func_begin0):
+# elseif KMP_ARCH_PPC64_Darwin
+KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask):
+	.p2align	3
+	.quad	KMP_LABEL(func_begin0)
+	.quad	0
+	.text
+KMP_LABEL(func_begin0):
+# else // Darwin ppc32
+KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask):
+KMP_LABEL(func_begin0):
 # endif
 
 // -- Begin __kmp_invoke_microtask
 // mark_begin;
 
 // We need to allocate a stack frame large enough to hold all of the parameters
-// on the stack for the microtask plus what this function needs. That's 48
-// bytes under the ELFv1 ABI (32 bytes under ELFv2), plus 8*(2 + argc) for the
-// parameters to the microtask, plus 8 bytes to store the values of r4 and r5,
-// and 8 bytes to store r31. With OMP-T support, we need an additional 8 bytes
-// to save r30 to hold a copy of r8.
+// on the stack for the microtask plus what this function needs. That’s
+// 48 bytes under the ELFv1 ABI (32 bytes under ELFv2), plus 8*(2 + argc)
+// for the parameters to the microtask, plus 8 bytes to store the values of r4
+// and r5, and 8 bytes to store r31. With OMP-T support, we need an additional
+// 8 bytes to save r30 to hold a copy of r8.
 
 	.cfi_startproc
 	mflr 0
 	std 31, -8(1)
 	std 0, 16(1)
 
-// This is unusual because normally we'd set r31 equal to r1 after the stack
+// This is unusual because normally we’d set r31 equal to r1 after the stack
 // frame is established. In this case, however, we need to dynamically compute
 // the stack frame size, and so we keep a direct copy of r1 to access our
 // register save areas and restore the r1 value before returning.
@@ -1426,7 +1460,7 @@ __kmp_invoke_microtask:
 // Compute the size necessary for the local stack frame.
 # if KMP_ARCH_PPC64_ELFv2
 	li 12, 72
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	li 12, 88
 # endif
 	sldi 0, 6, 3
@@ -1447,7 +1481,7 @@ __kmp_invoke_microtask:
 	mr 30, 8
 # endif
 
-// Store gtid and tid to the stack because they're passed by reference to the microtask.
+// Store gtid and tid to the stack because they’re passed by reference to the microtask.
 	stw 4, -20(31)
 	stw 5, -24(31)
 
@@ -1455,64 +1489,64 @@ __kmp_invoke_microtask:
 	mr 4, 7
 
 	cmpwi 0, 12, 1
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 5, 0(4)
 
 	cmpwi 0, 12, 2
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 6, 8(4)
 
 	cmpwi 0, 12, 3
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 7, 16(4)
 
 	cmpwi 0, 12, 4
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 8, 24(4)
 
 	cmpwi 0, 12, 5
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 9, 32(4)
 
 	cmpwi 0, 12, 6
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 	ld 10, 40(4)
 
 	cmpwi 0, 12, 7
-	blt	 0, .Lcall
+	blt	 0, KMP_LABEL(call)
 
 // There are more than 6 microtask parameters, so we need to store the
 // remainder to the stack.
 	addi 12, 12, -6
 	mtctr 12
 
-// These are set to 8 bytes before the first desired store address (we're using
+// These are set to 8 bytes before the first desired store address (we’re using
 // pre-increment loads and stores in the loop below). The parameter save area
 // for the microtask begins 48 + 8*8 == 112 bytes above r1 for ELFv1 and
 // 32 + 8*8 == 96 bytes above r1 for ELFv2.
 	addi 4, 4, 40
 # if KMP_ARCH_PPC64_ELFv2
 	addi 12, 1, 88
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	addi 12, 1, 104
 # endif
 
-.Lnext:
+KMP_LABEL(next):
 	ldu 0, 8(4)
 	stdu 0, 8(12)
-	bdnz .Lnext
+	bdnz KMP_LABEL(next)
 
-.Lcall:
+KMP_LABEL(call):
 # if KMP_ARCH_PPC64_ELFv2
 	std 2, 24(1)
 	mr 12, 3
-#else
+# elseif KMP_ARCH_PPC64_ELFv1
 	std 2, 40(1)
 // For ELFv1, we need to load the actual function address from the function descriptor.
 	ld 12, 0(3)
@@ -1527,7 +1561,7 @@ __kmp_invoke_microtask:
 	bctrl
 # if KMP_ARCH_PPC64_ELFv2
 	ld 2, 24(1)
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	ld 2, 40(1)
 # endif
 
@@ -1550,13 +1584,13 @@ __kmp_invoke_microtask:
 
 	.long	0
 	.quad	0
-.Lfunc_end0:
-	.size	__kmp_invoke_microtask, .Lfunc_end0-.Lfunc_begin0
+KMP_LABEL(func_end0):
+	.size	KMP_PREFIX_UNDERSCORE(__kmp_invoke_microtask), KMP_LABEL(func_end0)-KMP_LABEL(func_begin0)
 	.cfi_endproc
 
 // -- End  __kmp_invoke_microtask
 
-#endif /* KMP_ARCH_PPC64 */
+#endif /* KMP_ARCH_PPC || KMP_ARCH_PPC64 */
 
 #if KMP_ARCH_RISCV64
 
@@ -1725,6 +1759,7 @@ __kmp_invoke_microtask:
 
 #endif /* KMP_ARCH_RISCV64 */
 
+// For Darwin see above in KMP_GOMP_COMPAT section
 #if KMP_ARCH_ARM || KMP_ARCH_MIPS
     .data
     .comm .gomp_critical_user_,32,8
@@ -1750,8 +1785,7 @@ KMP_PREFIX_UNDERSCORE(__kmp_unnamed_critical_addr):
 #ifdef __ELF__
     .size KMP_PREFIX_UNDERSCORE(__kmp_unnamed_critical_addr),8
 #endif
-#endif /* KMP_ARCH_PPC64 || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS64 ||
-          KMP_ARCH_RISCV64 */
+#endif /* KMP_ARCH_PPC64 || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS64 || KMP_ARCH_RISCV64 */
 
 #if KMP_OS_LINUX
 # if KMP_ARCH_ARM

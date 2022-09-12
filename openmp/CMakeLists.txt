@@ -31,7 +31,7 @@ if (OPENMP_STANDALONE_BUILD)
     "C compiler to use for testing OpenMP runtime libraries.")
   set(OPENMP_TEST_CXX_COMPILER ${CMAKE_CXX_COMPILER} CACHE STRING
     "C++ compiler to use for testing OpenMP runtime libraries.")
-  if (NOT (CMAKE_OSX_ARCHITECTURES MATCH (ppc|ppc64)))
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(OPENMP_LLVM_TOOLS_DIR "" CACHE PATH "Path to LLVM tools for testing.")
   endif()
 else()
