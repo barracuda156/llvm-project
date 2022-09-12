@@ -30,7 +30,7 @@ if(${OPENMP_STANDALONE_BUILD})
   # If adding a new architecture, take a look at cmake/LibompGetArchitecture.cmake
   libomp_get_architecture(LIBOMP_DETECTED_ARCH)
   set(LIBOMP_ARCH ${LIBOMP_DETECTED_ARCH} CACHE STRING
-    "The architecture to build for (x86_64/i386/arm/ppc64/ppc64le/aarch64/mic/mips/mips64/riscv64).")
+    "The architecture to build for (x86_64/i386/arm/ppc/ppc64/ppc64le/aarch64/mic/mips/mips64/riscv64).")
   # Should assertions be enabled?  They are on by default.
   set(LIBOMP_ENABLE_ASSERTIONS TRUE CACHE BOOL
     "enable assertions?")
@@ -51,8 +51,10 @@ else() # Part of LLVM build
     set(LIBOMP_ARCH x86_64)
   elseif(LIBOMP_NATIVE_ARCH MATCHES "powerpc64le")
     set(LIBOMP_ARCH ppc64le)
-  elseif(LIBOMP_NATIVE_ARCH MATCHES "powerpc")
+  elseif(LIBOMP_NATIVE_ARCH MATCHES "powerpc64")
     set(LIBOMP_ARCH ppc64)
+  elseif(LIBOMP_NATIVE_ARCH MATCHES "powerpc")
+    set(LIBOMP_ARCH ppc)
   elseif(LIBOMP_NATIVE_ARCH MATCHES "aarch64")
     set(LIBOMP_ARCH aarch64)
   elseif(LIBOMP_NATIVE_ARCH MATCHES "arm64")
@@ -81,7 +83,7 @@ if(LIBOMP_ARCH STREQUAL "aarch64")
   endif()
 endif()
 
-libomp_check_variable(LIBOMP_ARCH 32e x86_64 32 i386 arm ppc64 ppc64le aarch64 aarch64_a64fx mic mips mips64 riscv64)
+libomp_check_variable(LIBOMP_ARCH 32e x86_64 32 i386 arm ppc ppc64 ppc64le aarch64 aarch64_a64fx mic mips mips64 riscv64)
 
 set(LIBOMP_LIB_TYPE normal CACHE STRING
   "Performance,Profiling,Stubs library (normal/profile/stubs)")
@@ -155,6 +157,7 @@ set(AARCH64_A64FX FALSE)
 set(PPC64BE FALSE)
 set(PPC64LE FALSE)
 set(PPC64 FALSE)
+set(PPC FALSE)
 set(MIC FALSE)
 set(MIPS64 FALSE)
 set(MIPS FALSE)
@@ -171,6 +174,8 @@ elseif("${LIBOMP_ARCH}" STREQUAL "ppc64") # PPC64BE architecture
 elseif("${LIBOMP_ARCH}" STREQUAL "ppc64le") # PPC64LE architecture
   set(PPC64LE TRUE)
   set(PPC64 TRUE)
+elseif("${LIBOMP_ARCH}" STREQUAL "ppc") # PPC32BE architecture
+  set(PPC TRUE)
 elseif("${LIBOMP_ARCH}" STREQUAL "aarch64") # AARCH64 architecture
   set(AARCH64 TRUE)
 elseif("${LIBOMP_ARCH}" STREQUAL "aarch64_a64fx") # AARCH64_A64FX architecture
