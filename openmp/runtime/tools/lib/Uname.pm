@@ -150,6 +150,8 @@ if ( 0 ) {
         $values{ hardware_platform } = "ppc64le";
     } elsif ( $values{ machine } =~ m{\Appc64\z} ) {
         $values{ hardware_platform } = "ppc64";
+    } elsif ( $values{ machine } =~ m{\Appc\z} ) {
+        $values{ hardware_platform } = "ppc";
     } elsif ( $values{ machine } =~ m{\Aaarch64\z} ) {
         $values{ hardware_platform } = "aarch64";
     } elsif ( $values{ machine } =~ m{\Amips64\z} ) {

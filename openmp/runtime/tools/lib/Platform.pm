@@ -53,6 +53,8 @@ sub canon_arch($) {
 			$arch = "ppc64le";
         } elsif ( $arch =~ m{\Appc64} ) {
         	$arch = "ppc64";
+        } elsif ( $arch =~ m{\Appc} ) {
+        	$arch = "ppc";
         } elsif ( $arch =~ m{\Aaarch64} ) {
                 $arch = "aarch64";
         } elsif ( $arch =~ m{\Amic} ) {
@@ -217,6 +219,8 @@ sub target_options() {
         $_host_arch = "ppc64le";
     } elsif ( $hardware_platform eq "ppc64" ) {
         $_host_arch = "ppc64";
+    } elsif ( $hardware_platform eq "ppc" ) {
+        $_host_arch = "ppc";
     } elsif ( $hardware_platform eq "aarch64" ) {
         $_host_arch = "aarch64";
     } elsif ( $hardware_platform eq "mips64" ) {
@@ -414,7 +418,7 @@ the script assumes host architecture is target one.
 
 Input string is an architecture name to canonize. The function recognizes many variants, for example:
 C<32e>, C<Intel64>, C<Intel(R) 64>, etc. Returned string is a canonized architecture name,
-one of: C<32>, C<32e>, C<64>, C<arm>, C<ppc64le>, C<ppc64>, C<mic>, C<mips>, C<mips64>, C<riscv64> or C<undef> is input string is not recognized.
+one of: C<32>, C<32e>, C<64>, C<arm>, C<ppc64le>, C<ppc64>, C<ppc>, C<mic>, C<mips>, C<mips64>, C<riscv64> or C<undef> is input string is not recognized.
 
 =item B<legal_arch( $arch )>
 
