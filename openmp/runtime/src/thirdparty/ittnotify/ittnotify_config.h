@@ -162,6 +162,18 @@
 #define ITT_ARCH_ARM64 6
 #endif /* ITT_ARCH_ARM64 */
 
+#ifndef ITT_ARCH_PPC
+#define ITT_ARCH_PPC 7
+#endif /* ITT_ARCH_PPC */
+
+#ifndef ITT_ARCH_MIPS
+#define ITT_ARCH_MIPS 8
+#endif /* ITT_ARCH_MIPS */
+
+#ifndef ITT_ARCH_MIPS64
+#define ITT_ARCH_MIPS64 9
+#endif /* ITT_ARCH_MIPS64 */
+
 #ifndef ITT_ARCH
 #if defined _M_IX86 || defined __i386__
 #define ITT_ARCH ITT_ARCH_IA32
@@ -173,8 +185,14 @@
 #define ITT_ARCH ITT_ARCH_ARM
 #elif defined __aarch64__
 #define ITT_ARCH ITT_ARCH_ARM64
-#elif defined __powerpc64__
+#elif defined __powerpc64__ || defined __ppc64__
 #define ITT_ARCH ITT_ARCH_PPC64
+#elif defined __powerpc__  || defined __ppc__
+#define ITT_ARCH ITT_ARCH_PPC
+#elif defined __mips__ && !defined __mips64
+#define ITT_ARCH ITT_ARCH_MIPS
+#elif defined __mips__ && defined __mips64
+#define ITT_ARCH ITT_ARCH_MIPS64
 #endif
 #endif
 
