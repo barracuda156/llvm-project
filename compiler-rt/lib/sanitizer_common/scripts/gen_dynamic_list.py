@@ -71,6 +71,7 @@ def get_global_functions(nm_executable, library):
     raise subprocess.CalledProcessError(nm_proc.returncode, nm)
   func_symbols = ['T', 'W']
   # On PowerPC, nm prints function descriptors from .data section.
+  # TODO: may not be the case on Darwin:
   if platform.uname()[4] in ["powerpc", "ppc64"]:
     func_symbols += ['D']
   for line in nm_out:

@@ -158,6 +158,8 @@ macro(detect_target_arch)
   check_symbol_exists(__i386__ "" __I386)
   check_symbol_exists(__mips__ "" __MIPS)
   check_symbol_exists(__mips64__ "" __MIPS64)
+  check_symbol_exists(__ppc__ "" __PPC)
+  check_symbol_exists(__ppc64__ "" __PPC64)
   check_symbol_exists(__powerpc64__ "" __PPC64)
   check_symbol_exists(__powerpc64le__ "" __PPC64LE)
   check_symbol_exists(__riscv "" __RISCV)
@@ -179,10 +181,21 @@ macro(detect_target_arch)
     add_default_target_arch(mips64)
   elseif(__MIPS)
     add_default_target_arch(mips)
-  elseif(__PPC64)
-    add_default_target_arch(powerpc64)
   elseif(__PPC64LE)
     add_default_target_arch(powerpc64le)
+  # It is confusing which should be used with LLVM:
+  elseif(__PPC64)
+    if(APPLE)
+      add_default_target_arch(ppc64)
+    else()
+      add_default_target_arch(powerpc64)
+    endif()
+  elseif(__PPC)
+    if(APPLE)
+      add_default_target_arch(ppc)
+    else()
+      add_default_target_arch(powerpc)
+    endif()
   elseif(__RISCV)
     if(CMAKE_SIZEOF_VOID_P EQUAL "4")
       add_default_target_arch(riscv32)
@@ -323,8 +336,7 @@ macro(construct_compiler_rt_default_triple)
 
   string(REPLACE "-" ";" TARGET_TRIPLE_LIST ${COMPILER_RT_DEFAULT_TARGET_TRIPLE})
   list(GET TARGET_TRIPLE_LIST 0 COMPILER_RT_DEFAULT_TARGET_ARCH)
-  # Determine if test target triple is specified explicitly, and doesn't match the
-  # default.
+  # Determine if test target triple is specified explicitly and doesn't match the default.
   if(NOT COMPILER_RT_DEFAULT_TARGET_TRIPLE STREQUAL TARGET_TRIPLE)
     set(COMPILER_RT_HAS_EXPLICIT_DEFAULT_TARGET_TRIPLE TRUE)
   else()
@@ -332,9 +344,9 @@ macro(construct_compiler_rt_default_triple)
   endif()
 endmacro()
 
-# Filter out generic versions of routines that are re-implemented in an
-# architecture specific manner. This prevents multiple definitions of the same
-# symbols, making the symbol selection non-deterministic.
+# Filter out generic versions of routines that are re-implemented
+# in an architecture specific manner. This prevents multiple definitions
+# of the same symbols, making the symbol selection non-deterministic.
 #
 # We follow the convention that a source file that exists in a sub-directory
 # (e.g. `ppc/divtc3.c`) is architecture-specific and that if a generic

@@ -531,6 +531,7 @@ set(mips64_SOURCES ${GENERIC_TF_SOURCES}
 set(mips64el_SOURCES ${GENERIC_TF_SOURCES}
                      ${mips_SOURCES})
 
+
 set(powerpc64_SOURCES
   ppc/divtc3.c
   ppc/fixtfti.c
@@ -548,12 +549,16 @@ set(powerpc64_SOURCES
   ${GENERIC_SOURCES}
 )
 set(powerpc64le_SOURCES ${powerpc64_SOURCES})
+set(ppc64_SOURCES ${powerpc64_SOURCES}) # TODO: check compliance with Darwin ABI
+set(powerpc_SOURCES ${powerpc64_SOURCES})
+set(ppc_SOURCES ${powerpc64_SOURCES}) # TODO: check compliance with Darwin ABI
 
 set(riscv_SOURCES ${GENERIC_SOURCES} ${GENERIC_TF_SOURCES})
 set(riscv32_SOURCES
   riscv/mulsi3.S
   ${riscv_SOURCES}
 )
+
 set(riscv64_SOURCES ${riscv_SOURCES})
 
 set(sparc_SOURCES ${GENERIC_SOURCES} ${GENERIC_TF_SOURCES})

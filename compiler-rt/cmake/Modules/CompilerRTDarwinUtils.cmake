@@ -89,7 +89,7 @@ function(darwin_get_toolchain_supported_archs output_var)
   else()
     # If auto-detecting fails, fall back to a default set
     message(WARNING "Detecting supported architectures from 'ld -v' failed. Returning default set.")
-    set(ARCHES "i386;x86_64;armv7;armv7s;arm64")
+    set(ARCHES "i386;x86_64;armv7;armv7s;arm64;ppc;ppc64")
   endif()
   
   set(${output_var} ${ARCHES} PARENT_SCOPE)
@@ -128,6 +128,16 @@ function(darwin_test_archs os valid_archs)
         message(STATUS "Disabling i386 slice for ${valid_archs}")
         list(REMOVE_ITEM archs "i386")
       endif()
+      # The last macOS to support ppc is 10.6.8
+      if ("${macosx_sdk_version}" VERSION_GREATER 10.7 OR "${macosx_sdk_version}" VERSION_EQUAL 10.7)
+        message(STATUS "Disabling ppc slice for ${valid_archs}")
+        list(REMOVE_ITEM archs "ppc")
+      endif()
+      # The last macOS to support ppc64 is 10.5.8
+      if ("${macosx_sdk_version}" VERSION_GREATER 10.6 OR "${macosx_sdk_version}" VERSION_EQUAL 10.6)
+        message(STATUS "Disabling ppc64 slice for ${valid_archs}")
+        list(REMOVE_ITEM archs "ppc64")
+      endif()
     endif()
   endif()
 
@@ -165,11 +175,18 @@ function(darwin_test_archs os valid_archs)
     CACHE STRING "List of valid architectures for platform ${os}." FORCE)
 endfunction()
 
+set(ROSETTA_HOST Off)
+if (CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.6" AND CMAKE_OSX_ARCHITECTURES MATCHES "ppc")
+  message(STATUS "10.6 Rosetta: building for ppc")
+  set(ROSETTA_HOST On)
+endif()
+
 # This function checks the host cputype/cpusubtype to filter supported
 # architecture for the host OS. This is used to determine which tests are
 # available for the host.
 function(darwin_filter_host_archs input output)
   list_intersect(tmp_var DARWIN_osx_ARCHS ${input})
+if(NOT ROSETTA_HOST)
   execute_process(
     COMMAND sysctl hw.cputype
     OUTPUT_VARIABLE CPUTYPE)
@@ -205,6 +222,15 @@ function(darwin_filter_host_archs input output)
     endif()
   endif()
 
+else()
+# We want to avoid FAT builds on Rosetta:
+    list(REMOVE_ITEM tmp_var i386)
+    list(REMOVE_ITEM tmp_var x86_64)
+    list(REMOVE_ITEM tmp_var x86_64h)
+    list(REMOVE_ITEM tmp_var arm64)
+    list(REMOVE_ITEM tmp_var arm64e)
+
+endif()
   set(${output} ${tmp_var} PARENT_SCOPE)
 endfunction()
 

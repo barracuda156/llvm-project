@@ -22,14 +22,14 @@ int foo(int x, int y) {
 }
 ")
 
-
-set(ARM64 aarch64)
 set(ARM32 arm armhf armv6m armv7m armv7em armv7 armv7s armv7k)
+set(ARM64 aarch64)
 set(HEXAGON hexagon)
 set(X86 i386)
 set(X86_64 x86_64)
 set(MIPS32 mips mipsel)
 set(MIPS64 mips64 mips64el)
+set(PPC32 powerpc)
 set(PPC64 powerpc64 powerpc64le)
 set(RISCV32 riscv32)
 set(RISCV64 riscv64)
@@ -40,21 +40,46 @@ set(WASM64 wasm64)
 set(VE ve)
 
 if(APPLE)
-  set(ARM64 arm64 arm64e)
   set(ARM32 armv7 armv7k armv7s)
+  set(ARM64 arm64 arm64e)
+  set(PPC32 ppc)
+  set(PPC64 ppc64)
   set(X86_64 x86_64 x86_64h)
 endif()
 
 set(ALL_BUILTIN_SUPPORTED_ARCH
   ${X86} ${X86_64} ${ARM32} ${ARM64}
-  ${HEXAGON} ${MIPS32} ${MIPS64} ${PPC64}
+  ${HEXAGON} ${MIPS32} ${MIPS64} ${PPC32} ${PPC64}
   ${RISCV32} ${RISCV64} ${SPARC} ${SPARCV9}
   ${WASM32} ${WASM64} ${VE})
 
 include(CompilerRTUtils)
 include(CompilerRTDarwinUtils)
 
+if (APPLE AND CMAKE_OSX_ARCHITECTURES)
+  set(TARGET_ARCH ${CMAKE_OSX_ARCHITECTURES})
+else()
+  set(TARGET_ARCH ${CMAKE_SYSTEM_PROCESSOR})
+endif()
+
 if(APPLE)
+  list(APPEND DARWIN_osx_BUILTIN_ALL_POSSIBLE_ARCHS ${arch})
+
+# Trickery with detecting archs from SDK does not seem to work on PPC.
+if(TARGET_ARCH MATCHES "^powerpc" OR TARGET_ARCH MATCHES "^ppc" OR TARGET_ARCH MATCHES "^ppc64")
+  set(DARWIN_osx_BUILTIN_MIN_VER 10.5)
+  set(DARWIN_osx_BUILTIN_MIN_VER_FLAG
+      -mmacosx-version-min=${DARWIN_osx_BUILTIN_MIN_VER})
+  if(NOT DARWIN_osx_BUILTIN_ALL_POSSIBLE_ARCHS)
+    if(CMAKE_OSX_DEPLOYMENT_TARGET STREQUAL "10.5")
+      set(DARWIN_osx_BUILTIN_ALL_POSSIBLE_ARCHS ${PPC32} ${PPC64})
+    else()
+      set(DARWIN_osx_BUILTIN_ALL_POSSIBLE_ARCHS ${PPC32})
+    endif()
+  endif()
+
+# Everything besides PPC:
+else()
 
   find_darwin_sdk_dir(DARWIN_osx_SYSROOT macosx)
   find_darwin_sdk_dir(DARWIN_iossim_SYSROOT iphonesimulator)
@@ -122,6 +147,7 @@ if(APPLE)
     set(DARWIN_tvos_BUILTIN_ALL_POSSIBLE_ARCHS armv7 arm64)
     set(DARWIN_tvossim_BUILTIN_ALL_POSSIBLE_ARCHS ${X86} ${X86_64})
   endif()
+endif()
 
   set(BUILTIN_SUPPORTED_OS osx)
 
