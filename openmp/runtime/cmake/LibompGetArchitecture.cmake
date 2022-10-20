@@ -39,8 +39,10 @@ function(libomp_get_architecture return_arch)
       #error ARCHITECTURE=aarch64
     #elif defined(__powerpc64__) && defined(__LITTLE_ENDIAN__)
       #error ARCHITECTURE=ppc64le
-    #elif defined(__powerpc64__)
+    #elif defined(__powerpc64__) || defined(__ppc64__)
       #error ARCHITECTURE=ppc64
+    #elif defined(__ppc__)
+      #error ARCHITECTURE=ppc
     #elif defined(__mips__) && defined(__mips64)
       #error ARCHITECTURE=mips64
     #elif defined(__mips__) && !defined(__mips64)

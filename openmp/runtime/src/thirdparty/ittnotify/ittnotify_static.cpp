@@ -76,7 +76,7 @@ static const char* ittnotify_lib_name = "libittnotify.dylib";
 #define ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(x)  "/data/data/com.intel.vtune/perfrun/lib" \
                                                 #x "/runtime/libittnotify.so"
 
-#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM
+#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM || ITT_ARCH == ITT_ARCH_PPC
 #define ANDROID_ITTNOTIFY_DEFAULT_PATH  ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(32)
 #else
 #define ANDROID_ITTNOTIFY_DEFAULT_PATH  ANDROID_ITTNOTIFY_DEFAULT_PATH_MASK(64)
@@ -90,7 +90,7 @@ static const char* ittnotify_lib_name = "libittnotify.dylib";
 
 
 #ifndef LIB_VAR_NAME
-#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM || ITT_ARCH==ITT_ARCH_MIPS
+#if ITT_ARCH==ITT_ARCH_IA32 || ITT_ARCH==ITT_ARCH_ARM || ITT_ARCH==ITT_ARCH_MIPS || ITT_ARCH == ITT_ARCH_PPC
 #define LIB_VAR_NAME INTEL_LIBITTNOTIFY32
 #else
 #define LIB_VAR_NAME INTEL_LIBITTNOTIFY64

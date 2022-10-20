@@ -22,7 +22,12 @@
 #include <unistd.h>
 #if KMP_OS_DARWIN
 // OS X
-#define __kmp_gettid() syscall(SYS_thread_selfid)
+#include <AvailabilityMacros.h>
+#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+#define __kmp_gettid() pthread_mach_thread_np(pthread_self())
+#else
+#define __kmp_gettid() syscall(SYS_gettid)
+#endif
 #elif KMP_OS_FREEBSD
 #include <pthread_np.h>
 #define __kmp_gettid() pthread_getthreadid_np()

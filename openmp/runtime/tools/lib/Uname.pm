@@ -150,6 +150,8 @@ if ( 0 ) {
         $values{ hardware_platform } = "ppc64le";
     } elsif ( $values{ machine } =~ m{\Appc64\z} ) {
         $values{ hardware_platform } = "ppc64";
+    } elsif ( $values{ machine } =~ m{\Appc\z} ) {
+        $values{ hardware_platform } = "ppc";
     } elsif ( $values{ machine } =~ m{\Aaarch64\z} ) {
         $values{ hardware_platform } = "aarch64";
     } elsif ( $values{ machine } =~ m{\Amips64\z} ) {
@@ -188,8 +190,12 @@ if ( 0 ) {
                 return $platform;
             }; # sub {
     } elsif ( $values{ machine } eq "x86_64" ) {
-	# Some OS X* versions report "x86_64".
-	$values{ hardware_platform } = "x86_64";
+        # Some OS X* versions report "x86_64".
+        $values{ hardware_platform } = "x86_64";
+    } elsif ( $values{ machine } eq "ppc64" or $values{ machine } eq "powerpc64" ) {
+        $values{ hardware_platform } = "ppc64";
+    } elsif ( $values{ machine } eq "ppc" or $values{ machine } eq "powerpc" ) {
+        $values{ hardware_platform } = "ppc";
     } else {
         die "Unsupported machine (\"$values{ machine }\") returned by POSIX::uname(); stopped";
     }; # if

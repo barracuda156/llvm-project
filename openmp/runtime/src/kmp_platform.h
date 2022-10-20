@@ -95,7 +95,9 @@
 #define KMP_ARCH_AARCH64 0
 #define KMP_ARCH_PPC64_ELFv1 0
 #define KMP_ARCH_PPC64_ELFv2 0
-#define KMP_ARCH_PPC64 (KMP_ARCH_PPC64_ELFv2 || KMP_ARCH_PPC64_ELFv1)
+#define KMP_ARCH_PPC64_Darwin 0
+#define KMP_ARCH_PPC64 (KMP_ARCH_PPC64_ELFv2 || KMP_ARCH_PPC64_ELFv1 || KMP_ARCH_PPC64_Darwin)
+#define KMP_ARCH_PPC 0
 #define KMP_ARCH_MIPS 0
 #define KMP_ARCH_MIPS64 0
 #define KMP_ARCH_RISCV64 0
@@ -117,14 +119,20 @@
 #elif defined __i386
 #undef KMP_ARCH_X86
 #define KMP_ARCH_X86 1
-#elif defined __powerpc64__
-#if defined(_CALL_ELF) && _CALL_ELF == 2
+#elif defined __powerpc64__ || defined __ppc64__
+#if defined(__APPLE__)
+#undef KMP_ARCH_PPC64_Darwin
+#define KMP_ARCH_PPC64_Darwin 1
+#elif defined(_CALL_ELF) && _CALL_ELF == 2
 #undef KMP_ARCH_PPC64_ELFv2
 #define KMP_ARCH_PPC64_ELFv2 1
 #else
 #undef KMP_ARCH_PPC64_ELFv1
 #define KMP_ARCH_PPC64_ELFv1 1
 #endif
+#elif defined __ppc__
+#undef KMP_ARCH_PPC
+#define KMP_ARCH_PPC 1
 #elif defined __aarch64__
 #undef KMP_ARCH_AARCH64
 #define KMP_ARCH_AARCH64 1
@@ -194,7 +202,7 @@
 #endif
 
 /* Specify 32 bit architectures here */
-#define KMP_32_BIT_ARCH (KMP_ARCH_X86 || KMP_ARCH_ARM || KMP_ARCH_MIPS)
+#define KMP_32_BIT_ARCH (KMP_ARCH_X86 || KMP_ARCH_ARM || KMP_ARCH_MIPS || KMP_ARCH_PPC)
 
 // Platforms which support Intel(R) Many Integrated Core Architecture
 #define KMP_MIC_SUPPORTED                                                      \
@@ -202,8 +210,8 @@
 
 // TODO: Fixme - This is clever, but really fugly
 #if (1 !=                                                                      \
-     KMP_ARCH_X86 + KMP_ARCH_X86_64 + KMP_ARCH_ARM + KMP_ARCH_PPC64 +          \
-     KMP_ARCH_AARCH64 + KMP_ARCH_MIPS + KMP_ARCH_MIPS64 + KMP_ARCH_RISCV64)
+     KMP_ARCH_X86 + KMP_ARCH_X86_64 + KMP_ARCH_PPC + KMP_ARCH_PPC64 +          \
+     KMP_ARCH_ARM + KMP_ARCH_AARCH64 + KMP_ARCH_MIPS + KMP_ARCH_MIPS64 + KMP_ARCH_RISCV64)
 #error Unknown or unsupported architecture
 #endif
 

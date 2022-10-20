@@ -22,7 +22,7 @@
 #include "kmp_itt.h"
 #include "kmp_stats.h"
 #include "kmp_str.h"
-#if KMP_OS_WINDOWS && KMP_ARCH_X86
+#if (KMP_OS_WINDOWS && KMP_ARCH_X86) || (KMP_OS_DARWIN && KMP_ARCH_PPC)
 #include <float.h>
 #endif
 

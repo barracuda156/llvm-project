@@ -677,7 +677,7 @@ void __kmpc_flush(ident_t *loc) {
 #elif (KMP_ARCH_ARM || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS || KMP_ARCH_MIPS64 || \
        KMP_ARCH_RISCV64)
 // Nothing to see here move along
-#elif KMP_ARCH_PPC64
+#elif (KMP_ARCH_PPC || KMP_ARCH_PPC64)
 // Nothing needed here (we have a real MB above).
 #if KMP_OS_CNK
   // The flushing thread needs to yield here; this prevents a

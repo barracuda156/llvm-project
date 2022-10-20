@@ -1239,7 +1239,26 @@ static inline void __kmp_x86_pause(void) { _mm_delay_32(300); }
 static inline void __kmp_x86_pause(void) { _mm_pause(); }
 #endif
 #define KMP_CPU_PAUSE() __kmp_x86_pause()
+#elif KMP_ARCH_PPC
+#define KMP_PPC_PRI_LOW() __asm__ volatile("or r1, r1, r1")
+#define KMP_PPC_PRI_MED() __asm__ volatile("or r2, r2, r2")
+#define KMP_PPC_PRI_LOC_MB() __asm__ volatile("" : : : "memory")
+#define KMP_CPU_PAUSE()                                                        \
+  do {                                                                         \
+    KMP_PPC64_PRI_LOW();                                                       \
+    KMP_PPC64_PRI_MED();                                                       \
+    KMP_PPC64_PRI_LOC_MB();                                                    \
+  } while (0)
 #elif KMP_ARCH_PPC64
+#if KMP_OS_DARWIN
+#define KMP_PPC64_PRI_LOW() __asm__ volatile("or r1, r1, r1")
+#define KMP_PPC64_PRI_MED() __asm__ volatile("or r2, r2, r2")
+#define KMP_PPC64_PRI_LOC_MB() __asm__ volatile("" : : : "memory")
+#else
+#define KMP_PPC64_PRI_LOW() __asm__ volatile("or 1, 1, 1")
+#define KMP_PPC64_PRI_MED() __asm__ volatile("or 2, 2, 2")
+#define KMP_PPC64_PRI_LOC_MB() __asm__ volatile("" : : : "memory")
+#endif // KMP_OS_DARWIN
 #define KMP_PPC64_PRI_LOW() __asm__ volatile("or 1, 1, 1")
 #define KMP_PPC64_PRI_MED() __asm__ volatile("or 2, 2, 2")
 #define KMP_PPC64_PRI_LOC_MB() __asm__ volatile("" : : : "memory")

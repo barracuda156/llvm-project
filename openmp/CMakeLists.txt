@@ -26,7 +26,9 @@ if (OPENMP_STANDALONE_BUILD OR "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_S
     "C compiler to use for testing OpenMP runtime libraries.")
   set(OPENMP_TEST_CXX_COMPILER ${CMAKE_CXX_COMPILER} CACHE STRING
     "C++ compiler to use for testing OpenMP runtime libraries.")
-  set(OPENMP_LLVM_TOOLS_DIR "" CACHE PATH "Path to LLVM tools for testing.")
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+     set(OPENMP_LLVM_TOOLS_DIR "" CACHE PATH "Path to LLVM tools for testing.")
+   endif()
 else()
   set(OPENMP_ENABLE_WERROR ${LLVM_ENABLE_WERROR})
   # If building in tree, we honor the same install suffix LLVM uses.

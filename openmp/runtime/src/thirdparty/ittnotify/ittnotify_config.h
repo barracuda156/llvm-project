@@ -149,6 +149,10 @@
 #  define ITT_ARCH_ARM  4
 #endif /* ITT_ARCH_ARM */
 
+#ifndef ITT_ARCH_PPC
+#  define ITT_ARCH_PPC  5
+#endif /* ITT_ARCH_PPC */
+
 #ifndef ITT_ARCH_PPC64
 #  define ITT_ARCH_PPC64  5
 #endif /* ITT_ARCH_PPC64 */
@@ -174,8 +178,10 @@
 #    define ITT_ARCH ITT_ARCH_IA64
 #  elif defined _M_ARM || defined __arm__
 #    define ITT_ARCH ITT_ARCH_ARM
-#  elif defined __powerpc64__
+#  elif defined __powerpc64__ || defined __ppc64__
 #    define ITT_ARCH ITT_ARCH_PPC64
+#  elif defined __ppc__
+#    define ITT_ARCH ITT_ARCH_PPC
 #  elif defined __aarch64__
 #    define ITT_ARCH ITT_ARCH_AARCH64
 #  elif defined __mips__ && !defined __mips64

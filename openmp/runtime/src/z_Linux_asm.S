@@ -68,7 +68,7 @@
 KMP_PREFIX_UNDERSCORE($0):
 .endmacro
 # else // KMP_OS_DARWIN
-#  define KMP_PREFIX_UNDERSCORE(x) x //no extra underscore for Linux* OS symbols
+#  define KMP_PREFIX_UNDERSCORE(x) x // no extra underscore for Linux* OS symbols
 // Format labels so that they don't override function names in gdb's backtraces
 // MIC assembler doesn't accept .L syntax, the L works fine there (as well as
 // on OS X*)
@@ -208,6 +208,24 @@ __kmp_unnamed_critical_addr:
         .size __kmp_unnamed_critical_addr,8
 #  endif /* KMP_OS_DARWIN */
 # endif /* KMP_ARCH_X86_64 */
+
+# if KMP_OS_DARWIN && (KMP_ARCH_PPC || KMP_ARCH_PPC64)
+#  if KMP_ARCH_PPC
+        .data
+        .comm .gomp_critical_user_,32
+        .data
+        .globl ___kmp_unnamed_critical_addr
+___kmp_unnamed_critical_addr:
+        .long .gomp_critical_user_
+#  else // Darwin ppc64
+        .data
+        .comm .gomp_critical_user_,32
+        .data
+        .globl ___kmp_unnamed_critical_addr
+___kmp_unnamed_critical_addr:
+        .quad .gomp_critical_user_
+#  endif /* KMP_ARCH_* */
+# endif /* KMP_OS_DARWIN && (KMP_ARCH_PPC || KMP_ARCH_PPC64) */
 
 #endif /* KMP_GOMP_COMPAT */
 
@@ -1203,7 +1221,7 @@ KMP_LABEL(kmp_1_exit):
 // -----------------------------------------------------------------------
 #endif /* KMP_ARCH_X86_64 */
 
-// '
+
 #if (KMP_OS_LINUX || KMP_OS_DARWIN) && KMP_ARCH_AARCH64
 
 //------------------------------------------------------------------------
@@ -1330,7 +1348,8 @@ KMP_LABEL(kmp_1):
 
 #endif /* (KMP_OS_LINUX || KMP_OS_DARWIN) && KMP_ARCH_AARCH64 */
 
-#if KMP_ARCH_PPC64
+#if (KMP_ARCH_PPC || KMP_ARCH_PPC64) && !KMP_OS_DARWIN
+// TODO: Darwin is not yet implemented below
 
 //------------------------------------------------------------------------
 // int
@@ -1426,7 +1445,7 @@ __kmp_invoke_microtask:
 // Compute the size necessary for the local stack frame.
 # if KMP_ARCH_PPC64_ELFv2
 	li 12, 72
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	li 12, 88
 # endif
 	sldi 0, 6, 3
@@ -1504,7 +1523,7 @@ __kmp_invoke_microtask:
 	addi 4, 4, 40
 # if KMP_ARCH_PPC64_ELFv2
 	addi 12, 1, 88
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	addi 12, 1, 104
 # endif
 
@@ -1517,7 +1536,7 @@ __kmp_invoke_microtask:
 # if KMP_ARCH_PPC64_ELFv2
 	std 2, 24(1)
 	mr 12, 3
-#else
+# elseif KMP_ARCH_PPC64_ELFv1
 	std 2, 40(1)
 // For ELFv1, we need to load the actual function address from the function descriptor.
 	ld 12, 0(3)
@@ -1532,7 +1551,7 @@ __kmp_invoke_microtask:
 	bctrl
 # if KMP_ARCH_PPC64_ELFv2
 	ld 2, 24(1)
-# else
+# elseif KMP_ARCH_PPC64_ELFv1
 	ld 2, 40(1)
 # endif
 
@@ -1561,7 +1580,7 @@ __kmp_invoke_microtask:
 
 // -- End  __kmp_invoke_microtask
 
-#endif /* KMP_ARCH_PPC64 */
+#endif /* KMP_ARCH_PPC || KMP_ARCH_PPC64 */
 
 #if KMP_ARCH_RISCV64
 
@@ -1730,6 +1749,8 @@ __kmp_invoke_microtask:
 
 #endif /* KMP_ARCH_RISCV64 */
 
+// For Darwin see above in KMP_GOMP_COMPAT section
+
 #if KMP_ARCH_ARM || KMP_ARCH_MIPS
     .data
     .comm .gomp_critical_user_,32,8
@@ -1739,7 +1760,7 @@ __kmp_invoke_microtask:
 __kmp_unnamed_critical_addr:
     .4byte .gomp_critical_user_
     .size __kmp_unnamed_critical_addr,4
-#endif /* KMP_ARCH_ARM */
+#endif /* KMP_ARCH_ARM || KMP_ARCH_MIPS */
 
 #if KMP_ARCH_PPC64 || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS64 || KMP_ARCH_RISCV64
     .data
@@ -1749,9 +1770,10 @@ __kmp_unnamed_critical_addr:
     .global __kmp_unnamed_critical_addr
 __kmp_unnamed_critical_addr:
     .8byte .gomp_critical_user_
+#ifdef __ELF__
     .size __kmp_unnamed_critical_addr,8
-#endif /* KMP_ARCH_PPC64 || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS64 ||
-          KMP_ARCH_RISCV64 */
+#endif
+#endif /* KMP_ARCH_PPC64 || KMP_ARCH_AARCH64 || KMP_ARCH_MIPS64 || KMP_ARCH_RISCV64 */
 
 #if KMP_OS_LINUX
 # if KMP_ARCH_ARM

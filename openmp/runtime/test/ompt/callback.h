@@ -178,6 +178,11 @@ ompt_label_##id:
 #define print_possible_return_addresses(addr) \
   printf("%" PRIu64 ": current_address=%p or %p\n", ompt_get_thread_data()->value, \
          ((char *)addr) - 8, ((char *)addr) - 12)
+#elif KMP_ARCH_PPC
+// TODO: is this gonna work on Darwin?
+#define print_possible_return_addresses(addr) \
+  printf("%" PRIu64 ": current_address=%p or %p\n", ompt_get_thread_data()->value, \
+         ((char *)addr) - 8, ((char *)addr) - 12)
 #elif KMP_ARCH_AARCH64
 // On AArch64 the NOP instruction is 4 bytes long, can be followed by inserted
 // store instruction (another 4 bytes long).
