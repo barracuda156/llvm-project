@@ -61,17 +61,21 @@ class DarwinLocalTI(DefaultTargetInfo):
 
     def get_sdk_version(self, name):
         assert self.is_host_macosx()
-        cmd = ['xcrun', '--sdk', name, '--show-sdk-path']
-        try:
-            out = subprocess.check_output(cmd).strip()
-        except OSError:
-            pass
-
+        res = 0
+        out = self.full_config.get_lit_conf('sysroot')
         if not out:
+            cmd = ['xcrun', '--sdk', name, '--show-sdk-path']
+            try:
+                out = subprocess.check_output(cmd).strip()
+            except OSError:
+                res = -1
+        full_config.lit_config.note('out: %r' % out)
+        if res == 0 and out:
+            return re.sub(r'.*/[^0-9]+([0-9.]+)\.sdk', r'\1', out)
+        else:
             self.full_config.lit_config.fatal(
                     "cannot infer sdk version with: %r" % cmd)
-
-        return re.sub(r'.*/[^0-9]+([0-9.]+)\.sdk', r'\1', out)
+        return '10.4'
 
     def get_platform(self):
         platform = self.full_config.get_lit_conf('platform')
@@ -116,7 +120,7 @@ class DarwinLocalTI(DefaultTargetInfo):
             flags += ["-isysroot", sdk_path]
 
     def add_cxx_link_flags(self, flags):
-        flags += ['-lSystem']
+        flags += [ '-latomic', '-lgcc_s.10.5', '-lSystem']
 
     def allow_cxxabi_link(self):
         # Don't link libc++abi explicitly on OS X because the symbols

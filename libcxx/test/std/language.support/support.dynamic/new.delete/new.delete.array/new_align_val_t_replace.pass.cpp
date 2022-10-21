@@ -8,6 +8,7 @@
 
 // UNSUPPORTED: c++03, c++11, c++14
 // UNSUPPORTED: sanitizer-new-delete
+// UNSUPPORTED: macosx10.5
 
 // test operator new replacement
 

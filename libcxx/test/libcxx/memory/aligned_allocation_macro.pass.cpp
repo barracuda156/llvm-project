@@ -20,6 +20,10 @@
 // XFAIL: availability=macosx10.11
 // XFAIL: availability=macosx10.10
 // XFAIL: availability=macosx10.9
+// XFAIL: availability=macosx10.8
+// XFAIL: availability=macosx10.7
+// XFAIL: availability=macosx10.6
+// XFAIL: availability=macosx10.5
 
 #include <new>
 

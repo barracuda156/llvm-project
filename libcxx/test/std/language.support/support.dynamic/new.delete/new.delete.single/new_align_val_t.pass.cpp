@@ -25,6 +25,10 @@
 // XFAIL: (apple-clang-9 || apple-clang-10) && with_system_cxx_lib=macosx10.11
 // XFAIL: (apple-clang-9 || apple-clang-10) && with_system_cxx_lib=macosx10.10
 // XFAIL: (apple-clang-9 || apple-clang-10) && with_system_cxx_lib=macosx10.9
+// UNSUPPORTED: macosx10.8
+// UNSUPPORTED: macosx10.7
+// UNSUPPORTED: macosx10.6
+// UNSUPPORTED: macosx10.5
 
 // asan and msan will not call the new handler.
 // UNSUPPORTED: sanitizer-new-delete
