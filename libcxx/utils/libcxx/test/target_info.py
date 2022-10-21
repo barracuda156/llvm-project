@@ -95,15 +95,21 @@ class DarwinLocalTI(DefaultTargetInfo):
         return (True, name, version)
 
     def add_cxx_compile_flags(self, flags):
-        if self.full_config.use_deployment:
-            _, name, _ = self.full_config.config.deployment
-            cmd = ['xcrun', '--sdk', name, '--show-sdk-path']
+        res = 0
+        if self.full_config.get_lit_conf('sysroot') != '':
+            # Other logic will add --sysroot= with this value, don't
+            # need to replicate, and don't want to override with whatever
+            # Xcode happens to have.
+            out = ''
         else:
             cmd = ['xcrun', '--show-sdk-path']
-        out, err, exit_code = executeCommand(cmd)
-        if exit_code != 0:
+            try:
+                out = subprocess.check_output(cmd).strip()
+            except OSError:
+                res = -1
+        if res != 0:
             self.full_config.lit_config.warning("Could not determine macOS SDK path! stderr was " + err)
-        if exit_code == 0 and out:
+        if res == 0 and out:
             sdk_path = out.strip()
             self.full_config.lit_config.note('using SDKROOT: %r' % sdk_path)
             assert isinstance(sdk_path, str)
