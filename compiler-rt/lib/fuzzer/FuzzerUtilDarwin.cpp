@@ -27,8 +27,12 @@
 #define POSIX_SPAWN_SETSIGDEF           0x0004
 #endif
 
-// There is no header for this on macOS so declare here
+#ifdef __APPLE__
+#include <crt_externs.h>
+#define environ (*_NSGetEnviron())
+#else
 extern "C" char **environ;
+#endif
 
 namespace fuzzer {
 
