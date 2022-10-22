@@ -230,9 +230,8 @@ static Reloc::Model getEffectiveRelocModel(const Triple &TT,
   if (RM.hasValue())
     return *RM;
 
-  // Darwin defaults to dynamic-no-pic.
   if (TT.isOSDarwin())
-    return Reloc::DynamicNoPIC;
+    return Reloc::PIC_; // Darwin defaults to PIC.
 
   // Big Endian PPC and AIX default to PIC.
   if (TT.getArch() == Triple::ppc64 || TT.isOSAIX())

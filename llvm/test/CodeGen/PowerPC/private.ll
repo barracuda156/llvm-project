@@ -1,20 +1,28 @@
 ; Test to make sure that the 'private' is used correctly.
 ;
-; RUN: llc -verify-machineinstrs < %s -mtriple=powerpc-unknown-linux-gnu | FileCheck %s
+; RUN: llc -verify-machineinstrs < %s -mtriple=powerpc-unknown-linux-gnu | \
+; RUN: FileCheck --check-prefix=LINUX %s
+;
+; RUN: llc -verify-machineinstrs < %s -mtriple=powerpc-apple-darwin -relocation-model=dynamic-no-pic | \
+; RUN: FileCheck --check-prefix=OSX %s
 
-; CHECK: .Lfoo:
+; LINUX: .Lfoo:
+; OSX: l_foo:
 define private void @foo() nounwind {
         ret void
 }
 
 define i32 @bar() nounwind {
-; CHECK: bl{{.*}}.Lfoo
+; LINUX: bl{{.*}}.Lfoo
+; OSX: bl{{.*}}l_foo
         call void @foo()
 
-; CHECK: lis{{.*}}.Lbaz
+; LINUX: lis{{.*}}.Lbaz
+; OSX:  lis{{.*}}l_baz
 	%1 = load i32, i32* @baz, align 4
         ret i32 %1
 }
 
-; CHECK: .Lbaz:
+; LINUX: .Lbaz:
+; OSX: l_baz:
 @baz = private global i32 4
