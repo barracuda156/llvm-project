@@ -2706,6 +2706,9 @@ Triple MachOObjectFile::getArchTriple(uint32_t CPUType, uint32_t CPUSubType,
   case MachO::CPU_TYPE_POWERPC:
     switch (CPUSubType & ~MachO::CPU_SUBTYPE_MASK) {
     case MachO::CPU_SUBTYPE_POWERPC_ALL:
+    case MachO::CPU_SUBTYPE_POWERPC_7400:
+    case MachO::CPU_SUBTYPE_POWERPC_7450:
+    case MachO::CPU_SUBTYPE_POWERPC_970:
       if (ArchFlag)
         *ArchFlag = "ppc";
       return Triple("ppc-apple-darwin");
